@@ -1,6 +1,6 @@
 {
   "name": "@io-maana/lambda-boilerplates",
-  "version": "0.0.0-beta.2",
+  "version": "0.0.0-beta.3",
   "description": "Library for various assistants that generate lambdas relying on boilerplate code",
   "main": "src/index.js",
   "scripts": {
