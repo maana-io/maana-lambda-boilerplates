@@ -1,2 +1,2 @@
 # maana-lambda-boilerplates
-Boilerplate code for various assistants that generate lambdas relying on boilerplate code
+Library for various assistants that generate lambdas relying on boilerplate code
