@@ -1,4 +1,4 @@
-const filter = async ({ filter, take, offset, ckg, svcRef, ontoKind }) => {
+const select = async ({ filter, take, offset, ckg, svcRef, ontoKind }) => {
   const filterPrefix = ontoKind[0].toLowerCase() + ontoKind.slice(1);
   const fn = `${filterPrefix}Filter`;
 
@@ -28,5 +28,5 @@ const filter = async ({ filter, take, offset, ckg, svcRef, ontoKind }) => {
 };
 
 module.exports = {
-  filter,
+  select,
 };
