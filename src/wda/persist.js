@@ -206,6 +206,19 @@ async function persist(input) {
 		})
 }
 
+// Retry failed attempts to persist:
+async function retry(fn, retriesLeft = 3, interval = 1000, exponential = false) {
+  try {
+    const val = await fn();
+    return val;
+  } catch (error) {
+    if (retriesLeft) {
+      await new Promise(r => setTimeout(r, interval));
+      return retry(fn, retriesLeft - 1, exponential ? interval * 2 : interval, exponential);
+    } else throw new Error(`Max retries reached with error: ${error.message}`);
+  }
+}
+
 module.exports = {
-	persist,
+	persist: retry(() => persist(input), input.retries, input.interval, input.exponentialRetries),
 }
