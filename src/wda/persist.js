@@ -9,7 +9,7 @@
  * error that can be trapped by the caller.
  */
 function sanityCheck(args, kindMap) {
-	if (args.length != 1) {
+	if (args.length != 4) {
 		throw new Error('Could not persist. Wrong number of inputs')
 	}
 	const arg = args[0]
