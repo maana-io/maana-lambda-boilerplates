@@ -213,7 +213,7 @@ async function persist(input) {
 }
 
 // Retry failed attempts to persist:
-async function retry(fn, retriesLeft = 3, interval = 1000, exponential = false) {
+async function retry(fn, retriesLeft = 3, interval = 10000, exponential = false) {
   try {
     const val = await fn();
     return val;
@@ -226,5 +226,5 @@ async function retry(fn, retriesLeft = 3, interval = 1000, exponential = false) 
 }
 
 module.exports = {
-	persist: retry(() => persist(input), input.retries, input.interval, input.exponentialRetries),
+	persist: retry((input) => persist(input), input.retries, input.interval, input.exponentialRetries),
 }
