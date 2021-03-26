@@ -2,13 +2,14 @@
 /** This function performs several checks of the input data to ensure that the
  * current function is a valid persister for kind data.
  * @param args - a list of args for the persister function. The
- * function is only considered a persister when there is exactly one argument,
+ * function is only considered a persister when there is exactly one argument, other than config-related arguments,
  * and that argument is either an input kind or a list of input kinds.
  * @param kindMap - a map object from kind name to kind definition. T
  * @returns On success this function returns nothing, otherwise it throws an
  * error that can be trapped by the caller.
  */
 function sanityCheck(args, kindMap) {
+
 	if (args.length != 1) {
 		throw new Error('Could not persist. Wrong number of inputs')
 	}
@@ -154,13 +155,18 @@ async function persist(input) {
 	// destructure the input and initialize the kindMap
 	const { __lambda } = input
 	const { input: args, kinds } = __lambda
+
+ // strip out config-related arguments
+ const configNames = ['retries', 'interval', 'exponentialRetries']
+ const filteredArgs = args.filter(arg => !configNames.includes(arg.name))
+
 	const kindMap = Object.fromEntries(kinds.map((x) => [x.name, x]))
 	console.log(`Found ${Object.keys(kindMap).length} kinds in scope`)
 
 	// perform the sanity checks
-	sanityCheck(args, kindMap)
+	sanityCheck(filteredArgs, kindMap)
 	// shortcut if no instances are provided.
-	const rawInstances = input[args[0].name]
+	const rawInstances = input[filteredArgs[0].name]
 	if (
 		!rawInstances ||
 		(Array.isArray(rawInstances) && rawInstances.length === 0)
@@ -169,7 +175,7 @@ async function persist(input) {
 		return null
 	}
 	//construct the instance map.
-	const instanceMap = aggregateInstances(args, kindMap, input)
+	const instanceMap = aggregateInstances(filteredArgs, kindMap, input)
 	console.log(
 		Object.entries(instanceMap)
 			.map(
@@ -180,7 +186,7 @@ async function persist(input) {
 	)
 	// shortcut if there are no instance of the "top level" kind. This can
 	// occur if the input is an empty list.
-	if (!Object.values(instanceMap[args[0].kind])) {
+	if (!Object.values(instanceMap[filteredArgs[0].kind])) {
 		console.log(
 			'Exiting because the instance map contained no instances for the top level kind'
 		)
@@ -192,7 +198,7 @@ async function persist(input) {
 				// when there are no errors generated, then return the list of
 				// identifiers for the instances of the top level kind.
 				console.log(`successfully persisted the instances`)
-				const ret = Object.values(instanceMap[args[0].kind]).map((z) => z.id)
+				const ret = Object.values(instanceMap[filteredArgs[0].kind]).map((z) => z.id)
 				console.log(ret)
 				return input.__lambda.outputModifiers.includes('LIST') ? ret : ret[0]
 			}
@@ -206,6 +212,19 @@ async function persist(input) {
 		})
 }
 
+// Retry failed attempts to persist:
+async function retry(fn, retriesLeft = 3, interval = 10000, exponential = false) {
+  try {
+    const val = await fn();
+    return val;
+  } catch (error) {
+    if (retriesLeft) {
+      await new Promise(r => setTimeout(r, interval));
+      return retry(fn, retriesLeft - 1, exponential ? interval * 2 : interval, exponential);
+    } else throw new Error(`Max retries reached with error: ${error.message}`);
+  }
+}
+
 module.exports = {
-	persist,
+	persist: retry((input) => persist(input), input.retries, input.interval, input.exponentialRetries),
 }
