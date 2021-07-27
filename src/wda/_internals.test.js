@@ -1,4 +1,3 @@
-const produce = require('immer');
 const { getArgsAndKindMap, sanityCheck } = require('./_internals');
 const fooWithBarCollection = require('./mocks/fooWithBarCollection.json');
 

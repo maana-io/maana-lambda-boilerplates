@@ -181,14 +181,18 @@ function getArgsAndKindMap(input) {
  * or persistence, this function will throw an error containing the details.
  * The error message can be viewed in the result payload of the graphql call.
  */
- async function persist(input) {
+async function persist(input) {
+	if (!input.__lambda) {
+		throw new Error('Could not destructure `__lambda` field; input: ' + JSON.stringify(input))
+	}
+
 	// destructure the input and initialize the kindMap
 	const { __lambda } = input
 	const { input: args, kinds } = __lambda
 
- // strip out config-related arguments
- const configNames = ['retries', 'interval', 'exponentialRetries']
- const filteredArgs = args.filter(arg => !configNames.includes(arg.name))
+	// strip out config-related arguments
+	const configNames = ['retries', 'interval', 'exponentialRetries']
+	const filteredArgs = args.filter(arg => !configNames.includes(arg.name))
 
 	const kindMap = Object.fromEntries(kinds.map((x) => [x.name, x]))
 	log(`Found ${Object.keys(kindMap).length} kinds in scope`)
