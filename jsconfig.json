@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "checkJs": true
+  },
+  "typeAcquisition": {
+    "include": [
+      "jest"
+    ]
+  },
+  "files": [
+    "./src"
+  ]
+}
