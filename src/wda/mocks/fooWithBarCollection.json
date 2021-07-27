@@ -1,0 +1,97 @@
+{
+  "__callingSvcRef": "wda-testing-workspace",
+  "__lambda": {
+    "_id": "60ff56e026e00da0615e5909",
+    "code": "return JSON.stringify(input);",
+    "graphQLOperationType": "MUTATION",
+    "id": "0eccfaab-7b32-4e0f-a613-ad7c2ce92fd8",
+    "input": [
+      {
+        "_id": "60ff56e0c9ea7f0019e934fb",
+        "kind": "FooInput",
+        "modifiers": [
+          "NONULL"
+        ],
+        "name": "foo"
+      }
+    ],
+    "kinds": [
+      {
+        "_id": "60ff56e0c9ea7f0019e934fc",
+        "fields": [
+          {
+            "_id": "60ff56e0c9ea7f0019e934fd",
+            "kind": "ID",
+            "modifiers": [
+              "NONULL"
+            ],
+            "name": "id"
+          },
+          {
+            "_id": "60ff56e0c9ea7f0019e934fe",
+            "kind": "STRING",
+            "modifiers": [
+              "NONULL"
+            ],
+            "name": "name"
+          },
+          {
+            "_id": "60ff56e0c9ea7f0019e934ff",
+            "kind": "BarInput",
+            "modifiers": [
+              "LIST",
+              "NONULL"
+            ],
+            "name": "bars"
+          }
+        ],
+        "name": "FooInput"
+      },
+      {
+        "_id": "60ff56e0c9ea7f0019e93500",
+        "fields": [
+          {
+            "_id": "60ff56e0c9ea7f0019e93501",
+            "kind": "ID",
+            "modifiers": [
+              "NONULL"
+            ],
+            "name": "id"
+          },
+          {
+            "_id": "60ff56e0c9ea7f0019e93502",
+            "kind": "STRING",
+            "modifiers": [
+              "NONULL"
+            ],
+            "name": "description"
+          }
+        ],
+        "name": "BarInput"
+      }
+    ],
+    "name": "persistFoo",
+    "outputKind": "STRING",
+    "outputModifiers": [
+      "NONULL"
+    ],
+    "runtime": {
+      "host": "Q",
+      "id": "Q+JavaScript",
+      "language": "JavaScript"
+    },
+    "sequenceNo": 1,
+    "serviceId": "d6abd69e-ae33-4481-a035-aa355bcda94e"
+  },
+  "__ownerSvcRef": "wda-testing-workspace",
+  "foo": {
+    "bars": [
+      {
+        "description": "First Bar",
+        "id": "bar-1"
+      }
+    ],
+    "id": "foo-1",
+    "name": "First Foo"
+  }
+}

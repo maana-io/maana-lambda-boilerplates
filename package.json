@@ -4,7 +4,8 @@
   "description": "Library for various assistants that generate lambdas relying on boilerplate code",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "test:coverage": "jest --collect-coverage"
   },
   "repository": {
     "type": "git",
@@ -15,5 +16,16 @@
   "bugs": {
     "url": "https://github.com/maana-io/maana-lambda-boilerplates/issues"
   },
-  "homepage": "https://github.com/maana-io/maana-lambda-boilerplates#readme"
+  "homepage": "https://github.com/maana-io/maana-lambda-boilerplates#readme",
+  "devDependencies": {
+    "@types/jest": "^26.0.24",
+    "jest": "^27.0.6"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "coverageReporters": [
+      "json",
+      "html"
+    ]
+  }
 }

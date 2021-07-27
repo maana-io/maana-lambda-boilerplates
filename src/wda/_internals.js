@@ -1,5 +1,7 @@
 'use strict';
 
+const { log } = require('../util/log')
+
 /** This function performs several checks of the input data to ensure that the
  * current function is a valid persister for kind data.
  * @param args - a list of args for the persister function. The
@@ -20,7 +22,7 @@ function sanityCheck(args, kindMap) {
 	if (!arg.kind.endsWith('Input')) {
 		throw new Error(`Argument ${arg.name} is not an input kind`);
 	}
-	console.log('Passed the sanity checks');
+	log('Passed the sanity checks');
 }
 
 /** Aggregate the instances of each of the kind valued fields into an
@@ -100,7 +102,7 @@ async function persistKindInstances(ckg, kindName, svcRef, instances) {
 	const baseKindName = kindName.slice(0, -5);
 	// if there are no instances, then shortcut. No call to ckg is required.
 	if (!instances || instances.length === 0) {
-		console.log(`skipping call to Add${baseKindName}s. No instances to add.`);
+		log(`skipping call to Add${baseKindName}s. No instances to add.`);
 		return [];
 	}
 	// construct the query and args to be passed to ckg.
@@ -112,7 +114,7 @@ async function persistKindInstances(ckg, kindName, svcRef, instances) {
 		variables: { input: instances },
 	};
 	// return the call to ckg
-	console.log(
+	log(
 		`Calling Add${baseKindName}s with ${instances.length} distinct instances`
 	);
 	return ckg(args).catch((err) => ({ errors: [err.message] }));
@@ -143,6 +145,32 @@ async function persistAllInstances(input, instanceMap) {
 	});
 }
 
+/**
+ * A simple utility function to get the inputs/args/kinds from the base input object
+ * @param {*} input
+ * @returns
+ */
+function getArgsAndKindMap(input) {
+  const {
+    __lambda: {
+      input: args,
+      kinds
+    }
+  } = input;
+
+  // strip out config-related arguments
+  const configNames = ['retries', 'interval', 'exponentialRetries']
+  const filteredArgs = args.filter(arg => !configNames.includes(arg.name))
+
+	const kindMap = Object.fromEntries(kinds.map((x) => [x.name, x]))
+	log(`Found ${Object.keys(kindMap).length} kinds in scope`)
+
+  return {
+    args: filteredArgs,
+    kinds: kindMap
+  }
+}
+
 /** The entry point for persisting the provided instances. This function
  * performs the sanity checks, aggregates the instances and then calls the
  * persisters by invoking the functions defined above.
@@ -163,7 +191,7 @@ async function persistAllInstances(input, instanceMap) {
  const filteredArgs = args.filter(arg => !configNames.includes(arg.name))
 
 	const kindMap = Object.fromEntries(kinds.map((x) => [x.name, x]))
-	console.log(`Found ${Object.keys(kindMap).length} kinds in scope`)
+	log(`Found ${Object.keys(kindMap).length} kinds in scope`)
 
 	// perform the sanity checks
 	sanityCheck(filteredArgs, kindMap)
@@ -173,12 +201,12 @@ async function persistAllInstances(input, instanceMap) {
 		!rawInstances ||
 		(Array.isArray(rawInstances) && rawInstances.length === 0)
 	) {
-		console.log('Exiting because nothing was provided to persist')
+		log('Exiting because nothing was provided to persist')
 		return null
 	}
 	//construct the instance map.
 	const instanceMap = aggregateInstances(filteredArgs, kindMap, input)
-	console.log(
+	log(
 		Object.entries(instanceMap)
 			.map(
 				([k, vs]) =>
@@ -189,7 +217,7 @@ async function persistAllInstances(input, instanceMap) {
 	// shortcut if there are no instance of the "top level" kind. This can
 	// occur if the input is an empty list.
 	if (!Object.values(instanceMap[filteredArgs[0].kind])) {
-		console.log(
+		log(
 			'Exiting because the instance map contained no instances for the top level kind'
 		)
 		return null
@@ -199,13 +227,13 @@ async function persistAllInstances(input, instanceMap) {
 			if (result && result.length === 0) {
 				// when there are no errors generated, then return the list of
 				// identifiers for the instances of the top level kind.
-				console.log(`successfully persisted the instances`)
+				log(`successfully persisted the instances`)
 				const ret = Object.values(instanceMap[filteredArgs[0].kind]).map((z) => z.id)
-				console.log(ret)
+				log(ret)
 				return input.__lambda.outputModifiers.includes('LIST') ? ret : ret[0]
 			}
 			//Otherwise, return the error messages from the call
-			else console.log(`failed to persist instances.`)
+			else log(`failed to persist instances.`)
 			return Promise.reject(JSON.stringify(result, null, 2))
 		})
 		.catch((e) => {
@@ -216,6 +244,7 @@ async function persistAllInstances(input, instanceMap) {
 
 module.exports = {
 	aggregateInstances,
+  getArgsAndKindMap,
   persist,
 	persistAllInstances,
 	persistKindInstances,
