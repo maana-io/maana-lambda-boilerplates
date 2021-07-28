@@ -226,8 +226,8 @@ async function retry(fn, retriesLeft = 3, interval = 10000, exponential = false)
 }
 
 module.exports = {
-	persist: async (input) => await retry(
-		async () => await persist(input),
+	persist: (input) => retry(
+		() => persist(input),
 		input.retries,
 		input.interval,
 		input.exponentialRetries
